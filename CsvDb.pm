@@ -45,13 +45,19 @@ sub getCon {
 		return 0;
 	}
 
+    # read first line of the file
     open my $file, '<', $self->{_conFile};
     my $conDataString = <$file>;
     close $file;
 
     my @conData = split(',', $conDataString);
 
-    #trim off whitespace
+    if(scalar(@conData) < 4){
+        $self->{_error} = "File not in right format!\nFollow template below:\ndatabase name, host, user, password";
+        return 0;   
+    }
+
+    # trim off whitespace
     foreach (@conData){
         $_ =~ s/^\s+|\s+$//g;
     }
@@ -63,7 +69,7 @@ sub getCon {
 
     $self->{_dbName} = $dbName;
     $self->{_dbHost} = $dbHost;
-    $self->{_dbUser} = $dbUser;   
+    $self->{_dbUser} = $dbUser;
     $self->{_dbPass} = $dbPass;
 
 }
