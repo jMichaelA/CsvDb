@@ -14,8 +14,8 @@ sub new {
 	};
 	bless $self, $class;
 
-	my @columns = ();
-	my $error = "";
+    my @columns = ();
+    my $error = "";
     my $dbName = "";
     my $dbHost = "";
     my $dbUser = "";
@@ -41,7 +41,7 @@ sub getCon {
 	my $dbPass = "";
 
 	if(! -f $self->{_conFile}) {
-		$self->{_error} = "$self->{_conFile} does not exist!\n";
+		$self->{_error} = "$self->{_conFile} does not exist!";
 		return 0;
 	}
 
