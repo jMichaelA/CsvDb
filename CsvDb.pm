@@ -8,20 +8,24 @@ use CsvDb::Column;
 
 sub new {
 	my $class = shift;
+    my $conFile = shift;
+    my $csvFile = shift;
+
 	my $self = {
-		_conFile => shift,
-		_csvFile => shift,
+
 	};
+
 	bless $self, $class;
 
-    my @columns = ();
     my $error = "";
     my $dbName = "";
     my $dbHost = "";
     my $dbUser = "";
     my $dbPass = "";
 
-	$self->{_columns} = @columns;
+    $self->{_csvFile} = $csvFile if defined $csvFile;
+    $self->{_conFile} = $conFile if defined $conFile;
+	$self->{_columns} = [];
 	$self->{_error} = $error;
     $self->{_dbName} = $dbName;
     $self->{_dbHost} = $dbHost;
@@ -39,6 +43,7 @@ sub getCon {
 	my $dbHost = "host=";
 	my $dbUser = "";
 	my $dbPass = "";
+    my $error = 0;
 
 	if(! -f $self->{_conFile}) {
 		$self->{_error} = "$self->{_conFile} does not exist!";
@@ -46,7 +51,13 @@ sub getCon {
 	}
 
     # read first line of the file
-    open my $file, '<', $self->{_conFile};
+    open my $file, '<', $self->{_conFile} or $error = 1;
+    
+    if($error){
+        $self->{_error} = "Could not open $self->{_conFile}";
+        return 0;
+    }
+
     my $conDataString = <$file>;
     close $file;
 
@@ -74,6 +85,7 @@ sub getCon {
 
 }
 
+#TODO implement
 sub con{
     my ($self) = @_;
     print "$self->{_dbName}\n";
@@ -82,10 +94,36 @@ sub con{
     print "$self->{_dbPass}\n";
 }
 
-#TODO implement
+
 sub readCsv {
 	my ($self) = @_;
-	print("$self->{_csvFile}\n");
+	my $error = 0;
+    my $count = 0;
+    my $tempCol;
+
+    open(my $fh, '<:encoding(UTF-8)', $self->{_csvFile}) or $error = 1;
+    
+    if($error == 1){
+        $self->{_error} = "Could not open file $self->{_csvFile}";
+        return 0;
+    }
+
+    my $firstRow = <$fh>;
+    chomp $firstRow;
+    my @columns = split(",",$firstRow);
+
+    for(my $i=0; $i < scalar(@columns); ++$i){
+        #remove quotes
+        $columns[$i] =~ s/\"//g;
+        $tempCol = new CsvDb::Column($columns[$i], $i);
+        push @{$self->{_columns}}, $tempCol;
+    }
+
+    while (my $row = <$fh>) {
+        chomp $row;
+        # print "$row\n";
+
+    }
 }
 
 # getters and setters
