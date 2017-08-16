@@ -115,7 +115,8 @@ sub readCsv {
     chomp $firstRow;
     chop($firstRow) if ($firstRow =~ m/\r$/);
 
-    #check to make sure there are no commas in the headers
+    # check to make sure there are no commas in the headers
+    # future release should handle this
     @match = $firstRow =~ m/"[^",]*,[^,]*"/g;
     if(scalar(@match) > 0){
         $self->{_error} = "Error commas in a header cell is not allowed in $self->{_csvFile}";
@@ -125,7 +126,7 @@ sub readCsv {
     my @columns = split(",",$firstRow);
 
     for(my $i=0; $i < scalar(@columns); ++$i){
-        #remove quotes
+        # remove quotes
         $columns[$i] =~ s/\"//g;
         $tempCol = new CsvDb::Column($columns[$i], $i);
         push @{$self->{_columns}}, $tempCol;
@@ -134,16 +135,17 @@ sub readCsv {
     while (my $row = <$fh>) {
         chomp $row;
         chop($row) if ($row =~ m/\r$/);
-        #find all strings with commas in them and just change strings to "string"
+        
+        # find all strings with commas in them and just change strings to "string"
         $row =~ s/"[^",]*,[^,]*"/string/g;;
         my @tempData = split(",", $row);
-        #remove strings
+
+        # remove strings
         for(@tempData){
             $_ =~ s/\"//g;
         }
-        push @rowData, \@tempData;
-        # print "$row\n";
 
+        push @rowData, \@tempData;
     }
 }
 
