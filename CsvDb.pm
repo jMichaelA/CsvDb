@@ -100,6 +100,9 @@ sub readCsv {
 	my $error = 0;
     my $count = 0;
     my $tempCol;
+    my @rowData = ();
+    my @match = ();
+    # my @tempData = ();
 
     open(my $fh, '<:encoding(UTF-8)', $self->{_csvFile}) or $error = 1;
     
@@ -110,6 +113,15 @@ sub readCsv {
 
     my $firstRow = <$fh>;
     chomp $firstRow;
+    chop($firstRow) if ($firstRow =~ m/\r$/);
+
+    #check to make sure there are no commas in the headers
+    @match = $firstRow =~ m/"[^",]*,[^,]*"/g;
+    if(scalar(@match) > 0){
+        $self->{_error} = "Error commas in a header cell is not allowed in $self->{_csvFile}";
+        return 0;
+    }
+
     my @columns = split(",",$firstRow);
 
     for(my $i=0; $i < scalar(@columns); ++$i){
@@ -121,6 +133,15 @@ sub readCsv {
 
     while (my $row = <$fh>) {
         chomp $row;
+        chop($row) if ($row =~ m/\r$/);
+        #find all strings with commas in them and just change strings to "string"
+        $row =~ s/"[^",]*,[^,]*"/string/g;;
+        my @tempData = split(",", $row);
+        #remove strings
+        for(@tempData){
+            $_ =~ s/\"//g;
+        }
+        push @rowData, \@tempData;
         # print "$row\n";
 
     }
