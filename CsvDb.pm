@@ -94,8 +94,8 @@ sub con{
 
 
 sub readCsv {
-	my ($self) = @_;
-	my $error = 0;
+    my ($self) = @_;
+    my $error = 0;
     my $count = 0;
     my $tempCol;
     my @colData = ();
