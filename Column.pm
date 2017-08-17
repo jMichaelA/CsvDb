@@ -42,25 +42,15 @@ sub computeDataType {
 
 		#check numeric
 		if($_  =~ m/^-?(0|([1-9][0-9]*))(\.[0-9]+)?([eE][-+]?[0-9]+)?$/){
-			$temp = $_;
-
-			#remove floating point
-			$temp = substr($temp, 0, index($temp, '.'));
-			
-			#see if number is float or integer
-			if($temp ne ""){
-				if($temp - $_ < 0 || $temp - $_ > 0){
-					if($self->{_dataType} ne "string"){
-						$self->{_dataType} = "float";	
-					}
+			if(($_ - int($_))){
+				if($self->{_dataType} ne "string"){
+					$self->{_dataType} = "float";	
 				}
 			}else{
 				if($self->{_dataType} eq ""){
 					$self->{_dataType} = "int";
 				}
-			}
-			
-			
+			}			
 		}else{
 			$self->{_dataType} = "string";
 		}

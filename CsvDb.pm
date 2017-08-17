@@ -100,7 +100,7 @@ sub readCsv {
 	my $error = 0;
     my $count = 0;
     my $tempCol;
-    my @rowData = ();
+    my @colData = ();
     my @match = ();
     # my @tempData = ();
 
@@ -137,15 +137,31 @@ sub readCsv {
         chop($row) if ($row =~ m/\r$/);
         
         # find all strings with commas in them and just change strings to "string"
+        # future release should handle this better
         $row =~ s/"[^",]*,[^,]*"/string/g;;
         my @tempData = split(",", $row);
-
-        # remove strings
-        for(@tempData){
-            $_ =~ s/\"//g;
+        # remove string quotations
+        for(my $i=0; $i < scalar(@tempData); ++$i){
+            my @tempArr = ();
+            $tempData[$i] =~ s/\"//g;
+                        
+            if(exists $colData[$i]){
+                push @{$colData[$i]}, $tempData[$i];
+            }else{
+                push @tempArr, $tempData[$i];
+                push @colData, \@tempArr;
+            }
         }
+    }
 
-        push @rowData, \@tempData;
+    for(my $i=0; $i < scalar(@colData); ++$i){
+        ${$self->{_columns}}[$i]->setData(\@{$colData[$i]});
+        ${$self->{_columns}}[$i]->computeDataType();
+    }
+
+    for(@{$self->{_columns}}){
+        print $_->getDataType();
+        print "\n";
     }
 }
 
