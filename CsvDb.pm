@@ -7,15 +7,13 @@ use DBI;
 use CsvDb::Column;
 
 sub new {
-	my $class = shift;
+    my $class = shift;
     my $conFile = shift;
     my $csvFile = shift;
 
-	my $self = {
+    my $self = {};
 
-	};
-
-	bless $self, $class;
+    bless $self, $class;
 
     my $error = "";
     my $dbName = "";
@@ -25,8 +23,8 @@ sub new {
 
     $self->{_csvFile} = $csvFile if defined $csvFile;
     $self->{_conFile} = $conFile if defined $conFile;
-	$self->{_columns} = [];
-	$self->{_error} = $error;
+    $self->{_columns} = [];
+    $self->{_error} = $error;
     $self->{_dbName} = $dbName;
     $self->{_dbHost} = $dbHost;
     $self->{_dbUser} = $dbUser;
@@ -38,17 +36,17 @@ sub new {
 # $myConnection = DBI->connect("DBI:Pg:dbname=jacob;host=localhost", "postgres", "postgres")
 	# or die "DB connection error!";
 sub getCon {
-	my ($self) = @_;
-	my $dbName = "DBI:Pg:dbname=";
-	my $dbHost = "host=";
-	my $dbUser = "";
-	my $dbPass = "";
+    my ($self) = @_;
+    my $dbName = "DBI:Pg:dbname=";
+    my $dbHost = "host=";
+    my $dbUser = "";
+    my $dbPass = "";
     my $error = 0;
 
-	if(! -f $self->{_conFile}) {
-		$self->{_error} = "$self->{_conFile} does not exist!";
-		return 0;
-	}
+    if(! -f $self->{_conFile}) {
+        $self->{_error} = "$self->{_conFile} does not exist!";
+        return 0;
+    }
 
     # read first line of the file
     open my $file, '<', $self->{_conFile} or $error = 1;
