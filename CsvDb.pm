@@ -140,9 +140,12 @@ sub readCsv {
         # future release should handle this better
         $row =~ s/"[^",]*,[^,]*"/string/g;;
         my @tempData = split(",", $row);
-        # remove string quotations
+        
+        # Separate data into columns
         for(my $i=0; $i < scalar(@tempData); ++$i){
             my @tempArr = ();
+
+            # remove string quotations
             $tempData[$i] =~ s/\"//g;
                         
             if(exists $colData[$i]){
