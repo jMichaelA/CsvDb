@@ -38,7 +38,7 @@ sub new {
 sub getCon {
     my ($self) = @_;
     my $dbName = "DBI:Pg:dbname=";
-    my $dbHost = "host=";
+    my $dbHost = ";host=";
     my $dbUser = "";
     my $dbPass = "";
     my $error = 0;
@@ -80,16 +80,31 @@ sub getCon {
     $self->{_dbHost} = $dbHost;
     $self->{_dbUser} = $dbUser;
     $self->{_dbPass} = $dbPass;
-
 }
 
-#TODO implement
-sub con{
-    my ($self) = @_;
-    print "$self->{_dbName}\n";
-    print "$self->{_dbHost}\n";
-    print "$self->{_dbUser}\n";
-    print "$self->{_dbPass}\n";
+sub runQuery{
+    my ($self, $query) = @_;
+    my $error = 0;
+
+    my $myConnection = DBI->connect("$self->{_dbName} $self->{_dbHost}", "$self->{_dbUser}", "$self->{_dbPass}")
+        or $error = 1;
+
+    if($error){
+        $self->{_error} = "Could not connect to db check credentials";
+        return 0;
+    }
+
+    $query = $myConnection->prepare($query)
+        or $error = 1;
+
+    my $result = $query->execute()
+        or $error = 1;
+
+    if($error){
+        $self->{_error} = "Query failed";
+        return 0;
+    }
+    return $query
 }
 
 
@@ -100,7 +115,6 @@ sub readCsv {
     my $tempCol;
     my @colData = ();
     my @match = ();
-    # my @tempData = ();
 
     open(my $fh, '<:encoding(UTF-8)', $self->{_csvFile}) or $error = 1;
     
