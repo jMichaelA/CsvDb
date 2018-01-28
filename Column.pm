@@ -43,7 +43,7 @@ sub computeDataType {
 		#check numeric
 		if($_  =~ m/^-?(0|([1-9][0-9]*))(\.[0-9]+)?([eE][-+]?[0-9]+)?$/){
 			if(($_ - int($_))){
-				if($self->{_dataType} ne "string"){
+				if($self->{_dataType} ne "varchar(300)"){
 					$self->{_dataType} = "float";	
 				}
 			}else{
@@ -52,12 +52,12 @@ sub computeDataType {
 				}
 			}			
 		}else{
-			$self->{_dataType} = "string";
+			$self->{_dataType} = "varchar(300)";
 		}
 	}
 
 	if($self->{_dataType} eq ""){
-		$self->{_dataType} = "string";
+		$self->{_dataType} = "varchar(300)";
 	}
 }
 

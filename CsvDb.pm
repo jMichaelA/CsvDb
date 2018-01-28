@@ -20,6 +20,7 @@ sub new {
     my $dbHost = "";
     my $dbUser = "";
     my $dbPass = "";
+    my $tableName = "";
 
     $self->{_csvFile} = $csvFile if defined $csvFile;
     $self->{_conFile} = $conFile if defined $conFile;
@@ -29,6 +30,8 @@ sub new {
     $self->{_dbHost} = $dbHost;
     $self->{_dbUser} = $dbUser;
     $self->{_dbPass} = $dbPass;
+    $self->{_table} = $tableName;
+    $self->{_id} = "id";
 
 	return $self;
 }
@@ -116,6 +119,8 @@ sub readCsv {
     my @colData = ();
     my @match = ();
 
+    # future needs to be able to detect dos line endings and convert to unix
+    # for now it's assuming it's dos
     open(my $fh, '<:encoding(UTF-8)', $self->{_csvFile}) or $error = 1;
     
     if($error == 1){
@@ -173,11 +178,29 @@ sub readCsv {
         ${$self->{_columns}}[$i]->setData(\@{$colData[$i]});
         ${$self->{_columns}}[$i]->computeDataType();
     }
+}
 
-    for(@{$self->{_columns}}){
-        print $_->getDataType();
-        print "\n";
+sub createTable{
+    my ($self) = @_;
+    if(!$self->{_tableName}) {
+        $self->{_error} = "Error tablename needs to be set";
+        return 0;
     }
+    my $transaction = "BEGIN;\n";
+    $transaction .= "CREATE TABLE $self->{_tableName} (\n";
+    $transaction .= "$self->{_id} serial primary key";
+    
+    my $name;
+    my $dataType;
+    foreach(@{$self->{_columns}}){
+        $name = $_->getName();
+        $dataType = $_->getDataType();
+        $transaction .= ",\n$name $dataType";
+    }
+
+    # $transaction .= "\n);\nROLLBACK;";
+    $transaction .= "\n);\nCOMMIT;";
+    $self->runQuery($transaction);
 }
 
 # getters and setters
@@ -246,4 +269,23 @@ sub getError {
     return $self->{_error};
 }
 
+sub setTableName {
+    my ($self, $table) = @_;
+    $self->{_tableName} = $table if defined($table);
+}
+
+sub getTableName {
+    my ($self) = @_;
+    return $self->{_tableName};
+}
+
+sub setId {
+    my ($self, $id) = @_;
+    $self->{_id} = $id if defined($id);
+}
+
+sub getId {
+    my ($self) = @_;
+    return $self->{_id};
+}
 1;
